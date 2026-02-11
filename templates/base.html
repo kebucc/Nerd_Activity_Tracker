@@ -25,6 +25,7 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    {% block script_config %}{% endblock %}
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>

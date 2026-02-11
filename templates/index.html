@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 
+{% block script_config %}
+<script>
+    window.DASH_CONFIG = {
+        viewMode: "{{ view_mode }}",
+        dateStr: "{{ date_str }}",
+        startDate: "{{ start_date }}",
+        endDate: "{{ end_date }}"
+    };
+</script>
+{% endblock %}
+
 {% block content %}
 <section class="date-nav">
-    <button id="prev-day" title="Previous day">&larr;</button>
-    <span id="current-date">{{ date_str }}</span>
-    <button id="next-day" title="Next day">&rarr;</button>
+    <button id="nav-prev" title="Previous {{ view_mode }}">&larr;</button>
+    <span id="current-date" data-date="{{ date_str }}">{{ nav_label }}</span>
+    <button id="nav-next" title="Next {{ view_mode }}">&rarr;</button>
+</section>
+
+<!-- View Mode Tabs -->
+<section class="view-tabs">
+    <a href="/day/{{ date_str }}" class="view-tab {% if view_mode == 'day' %}active{% endif %}">Day</a>
+    <a href="/week/{{ date_str }}" class="view-tab {% if view_mode == 'week' %}active{% endif %}">Week</a>
+    <a href="/month/{{ date_str }}" class="view-tab {% if view_mode == 'month' %}active{% endif %}">Month</a>
 </section>
 
 <!-- Stats Cards Row -->
@@ -58,6 +76,7 @@
 
 <!-- Timelines -->
 <section class="timelines">
+    {% if view_mode == 'day' %}
     <div class="timeline-hours">
         {% for h in range(25) %}
         <span>{{ "%02d"|format(h) if h < 24 else "" }}</span>
@@ -66,6 +85,17 @@
     <div id="timeline-cumulative" class="timeline-bar"></div>
     <div id="timeline-mouse" class="timeline-bar"></div>
     <div id="timeline-keyboard" class="timeline-bar"></div>
+
+    {% elif view_mode == 'week' %}
+    <div class="week-chart" id="week-chart"
+         data-start="{{ start_date }}" data-end="{{ end_date }}">
+    </div>
+
+    {% elif view_mode == 'month' %}
+    <div class="month-chart" id="month-chart"
+         data-start="{{ start_date }}" data-end="{{ end_date }}">
+    </div>
+    {% endif %}
 </section>
 
 <!-- Session Detail -->
@@ -75,6 +105,7 @@
         <thead>
             <tr>
                 <th>#</th>
+                {% if view_mode != 'day' %}<th>Date</th>{% endif %}
                 <th>Type</th>
                 <th>Start</th>
                 <th>End</th>
@@ -83,6 +114,6 @@
         </thead>
         <tbody></tbody>
     </table>
-    <p id="no-sessions" class="hidden">No sessions recorded for this date.</p>
+    <p id="no-sessions" class="hidden">No sessions recorded for this period.</p>
 </section>
 {% endblock %}

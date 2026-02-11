@@ -101,6 +101,48 @@ def get_summary_for_date(date_str: str, session_type: str = None) -> dict:
     return dict(row)
 
 
+def get_sessions_for_range(start_date: str, end_date: str, session_type: str = None) -> list[dict]:
+    conn = _get_conn()
+    if session_type:
+        rows = conn.execute(
+            "SELECT session_id, type, start_time, end_time, duration "
+            "FROM sessions WHERE date(start_time) >= ? AND date(start_time) <= ? AND type = ? "
+            "ORDER BY start_time",
+            (start_date, end_date, session_type),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT session_id, type, start_time, end_time, duration "
+            "FROM sessions WHERE date(start_time) >= ? AND date(start_time) <= ? "
+            "ORDER BY start_time",
+            (start_date, end_date),
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_summary_for_range(start_date: str, end_date: str, session_type: str = None) -> dict:
+    conn = _get_conn()
+    if session_type:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(duration), 0) AS total_duration, "
+            "       COUNT(*) AS session_count, "
+            "       COALESCE(AVG(duration), 0) AS avg_duration "
+            "FROM sessions WHERE date(start_time) >= ? AND date(start_time) <= ? AND type = ?",
+            (start_date, end_date, session_type),
+        ).fetchone()
+    else:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(duration), 0) AS total_duration, "
+            "       COUNT(*) AS session_count, "
+            "       COALESCE(AVG(duration), 0) AS avg_duration "
+            "FROM sessions WHERE date(start_time) >= ? AND date(start_time) <= ?",
+            (start_date, end_date),
+        ).fetchone()
+    conn.close()
+    return dict(row)
+
+
 def get_available_dates() -> list[str]:
     conn = _get_conn()
     rows = conn.execute(

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="date-nav">
+    <button id="prev-day" title="Previous day">&larr;</button>
+    <span id="current-date">{{ date_str }}</span>
+    <button id="next-day" title="Next day">&rarr;</button>
+</section>
+
+<!-- Stats Cards Row -->
+<section class="stats-row">
+    <div class="stat-card">
+        <h2 class="card-title cumulative-color">Cumulative</h2>
+        <div class="stat-item">
+            <span class="stat-label">Total Time</span>
+            <span class="stat-value cumulative-color">{{ cumulative_summary.total_duration_formatted }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Average Duration</span>
+            <span class="stat-value cumulative-color">{{ cumulative_summary.avg_duration_formatted }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Sessions</span>
+            <span class="stat-value cumulative-color">{{ cumulative_summary.session_count }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <h2 class="card-title mouse-color">Mouse</h2>
+        <div class="stat-item">
+            <span class="stat-label">Total Time</span>
+            <span class="stat-value mouse-color">{{ mouse_summary.total_duration_formatted }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Average Duration</span>
+            <span class="stat-value mouse-color">{{ mouse_summary.avg_duration_formatted }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Sessions</span>
+            <span class="stat-value mouse-color">{{ mouse_summary.session_count }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <h2 class="card-title keyboard-color">Keyboard</h2>
+        <div class="stat-item">
+            <span class="stat-label">Total Time</span>
+            <span class="stat-value keyboard-color">{{ keyboard_summary.total_duration_formatted }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Average Duration</span>
+            <span class="stat-value keyboard-color">{{ keyboard_summary.avg_duration_formatted }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Sessions</span>
+            <span class="stat-value keyboard-color">{{ keyboard_summary.session_count }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- Timelines -->
+<section class="timelines">
+    <div class="timeline-hours">
+        {% for h in range(25) %}
+        <span>{{ "%02d"|format(h) if h < 24 else "" }}</span>
+        {% endfor %}
+    </div>
+    <div id="timeline-cumulative" class="timeline-bar"></div>
+    <div id="timeline-mouse" class="timeline-bar"></div>
+    <div id="timeline-keyboard" class="timeline-bar"></div>
+</section>
+
+<!-- Session Detail -->
+<section class="session-list">
+    <h2>Session Detail</h2>
+    <table id="sessions-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <p id="no-sessions" class="hidden">No sessions recorded for this date.</p>
+</section>
+{% endblock %}

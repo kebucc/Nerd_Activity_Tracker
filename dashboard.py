@@ -54,7 +54,12 @@ def _render_dashboard(view_mode, date_str, start_date, end_date, nav_label):
     date_range = (start_date, end_date) if view_mode != "day" else None
     mouse_summary = _build_summary(date_str, "mouse", date_range)
     keyboard_summary = _build_summary(date_str, "keyboard", date_range)
-    cumulative_summary = _build_summary(date_str, None, date_range)
+    if date_range:
+        cumulative_summary = db.get_merged_summary_for_range(start_date, end_date)
+    else:
+        cumulative_summary = db.get_merged_summary_for_date(date_str)
+    cumulative_summary["total_duration_formatted"] = _format_duration(cumulative_summary["total_duration"])
+    cumulative_summary["avg_duration_formatted"] = _format_duration(cumulative_summary["avg_duration"])
     dates = db.get_available_dates()
     return render_template(
         "index.html",

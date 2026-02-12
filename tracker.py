@@ -132,7 +132,9 @@ def main():
     _keyboard_tracker = InputTracker("keyboard")
 
     _mouse_listener = mouse.Listener(
-        on_move=lambda x, y: _mouse_tracker.on_event()
+        on_move=lambda x, y: _mouse_tracker.on_event(),
+        on_click=lambda x, y, button, pressed: _mouse_tracker.on_event(),
+        on_scroll=lambda x, y, dx, dy: _mouse_tracker.on_event(),
     )
     _keyboard_listener = keyboard.Listener(
         on_press=lambda key: _keyboard_tracker.on_event()

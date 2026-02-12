@@ -106,26 +106,29 @@ async function loadWeekChart(startDate, endDate) {
     const byDate = {};
     sessions.forEach(s => {
         const d = s.start_time.split("T")[0];
-        if (!byDate[d]) byDate[d] = { mouse: 0, keyboard: 0 };
-        byDate[d][s.type] = (byDate[d][s.type] || 0) + s.duration;
+        if (!byDate[d]) byDate[d] = [];
+        byDate[d].push(s);
     });
 
-    // Find max daily total for scaling
-    let maxTotal = 0;
-    Object.values(byDate).forEach(v => {
-        const total = v.mouse + v.keyboard;
-        if (total > maxTotal) maxTotal = total;
-    });
-    if (maxTotal === 0) maxTotal = 1;
+    // Hour labels (shared across all rows)
+    const hours = document.createElement("div");
+    hours.className = "week-hours";
+    for (let h = 0; h <= 24; h++) {
+        const span = document.createElement("span");
+        span.textContent = h < 24 ? String(h).padStart(2, "0") : "";
+        hours.appendChild(span);
+    }
+    container.appendChild(hours);
 
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const start = new Date(startDate + "T12:00:00");
+    const MINUTES_IN_DAY = 1440;
 
     for (let i = 0; i < 7; i++) {
         const d = new Date(start);
         d.setDate(d.getDate() + i);
         const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-        const data = byDate[iso] || { mouse: 0, keyboard: 0 };
+        const daySessions = byDate[iso] || [];
 
         const row = document.createElement("div");
         row.className = "week-row";
@@ -134,28 +137,23 @@ async function loadWeekChart(startDate, endDate) {
         label.className = "week-label";
         label.textContent = `${dayNames[i]}  ${iso.slice(5)}`;
 
-        const barTrack = document.createElement("div");
-        barTrack.className = "week-bar-track";
+        const bar = document.createElement("div");
+        bar.className = "week-timeline-bar";
 
-        const mouseSeg = document.createElement("div");
-        mouseSeg.className = "week-bar-seg mouse-bg";
-        mouseSeg.style.width = `${(data.mouse / maxTotal) * 100}%`;
-        mouseSeg.title = `Mouse: ${formatDuration(data.mouse)}`;
+        daySessions.forEach(s => {
+            const startMin = parseTimeToMinutes(s.start_time);
+            const endMin = parseTimeToMinutes(s.end_time);
+            const seg = document.createElement("div");
+            const segClass = s.type === "mouse" ? "session-segment-mouse" : "session-segment-keyboard";
+            seg.className = `session-segment ${segClass}`;
+            seg.style.left = `${(startMin / MINUTES_IN_DAY) * 100}%`;
+            seg.style.width = `${(Math.max(endMin - startMin, 0.2) / MINUTES_IN_DAY) * 100}%`;
+            seg.title = `${s.type === "mouse" ? "Mouse" : "Keyboard"}: ${formatTimeFromISO(s.start_time)} - ${formatTimeFromISO(s.end_time)} (${formatDuration(s.duration)})`;
+            bar.appendChild(seg);
+        });
 
-        const kbSeg = document.createElement("div");
-        kbSeg.className = "week-bar-seg keyboard-bg";
-        kbSeg.style.width = `${(data.keyboard / maxTotal) * 100}%`;
-        kbSeg.title = `Keyboard: ${formatDuration(data.keyboard)}`;
-
-        const totalLabel = document.createElement("span");
-        totalLabel.className = "week-total";
-        totalLabel.textContent = formatDuration(data.mouse + data.keyboard);
-
-        barTrack.appendChild(mouseSeg);
-        barTrack.appendChild(kbSeg);
         row.appendChild(label);
-        row.appendChild(barTrack);
-        row.appendChild(totalLabel);
+        row.appendChild(bar);
         container.appendChild(row);
     }
 }

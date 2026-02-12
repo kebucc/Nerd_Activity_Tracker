@@ -296,11 +296,25 @@ td {
     padding: 1rem 1.2rem;
 }
 
+.week-hours {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 88px;
+    margin-bottom: 4px;
+}
+
+.week-hours span {
+    font-size: 0.6rem;
+    color: #555;
+    width: 0;
+    text-align: center;
+}
+
 .week-row {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 4px;
 }
 
 .week-row:last-child {
@@ -315,36 +329,13 @@ td {
     font-family: monospace;
 }
 
-.week-bar-track {
+.week-timeline-bar {
     flex: 1;
-    height: 24px;
+    height: 28px;
     background: #0f0f0f;
     border-radius: 4px;
-    display: flex;
+    position: relative;
     overflow: hidden;
-}
-
-.week-bar-seg {
-    height: 100%;
-    min-width: 0;
-    transition: width 0.3s ease;
-}
-
-.week-bar-seg.mouse-bg {
-    background: var(--color-mouse);
-    opacity: 0.85;
-}
-
-.week-bar-seg.keyboard-bg {
-    background: var(--color-keyboard);
-    opacity: 0.85;
-}
-
-.week-total {
-    font-size: 0.7rem;
-    color: #666;
-    min-width: 60px;
-    text-align: left;
 }
 
 /* Month Chart */

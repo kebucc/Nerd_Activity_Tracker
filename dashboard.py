@@ -132,6 +132,11 @@ def api_summary_range(start_date, end_date):
     return jsonify(db.get_summary_for_range(start_date, end_date, session_type))
 
 
+@app.route("/api/daily-totals/<start_date>/<end_date>")
+def api_daily_totals(start_date, end_date):
+    return jsonify(db.get_merged_daily_totals(start_date, end_date))
+
+
 @app.route("/api/dates")
 def api_dates():
     return jsonify(db.get_available_dates())

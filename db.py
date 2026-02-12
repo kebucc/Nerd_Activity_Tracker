@@ -190,6 +190,24 @@ def get_merged_summary_for_range(start_date: str, end_date: str) -> dict:
     return _merged_summary(sessions)
 
 
+def get_merged_daily_totals(start_date: str, end_date: str) -> dict:
+    """Return {date: merged_total_seconds} for each date in the range."""
+    sessions = get_sessions_for_range(start_date, end_date)
+    by_date: dict[str, list] = {}
+    for s in sessions:
+        d = s["start_time"].split("T")[0]
+        by_date.setdefault(d, []).append(s)
+    result = {}
+    for d, day_sessions in by_date.items():
+        intervals = _merge_intervals(day_sessions)
+        total = sum(
+            (datetime.fromisoformat(end) - datetime.fromisoformat(start)).total_seconds()
+            for start, end in intervals
+        )
+        result[d] = round(total, 2)
+    return result
+
+
 def get_available_dates() -> list[str]:
     conn = _get_conn()
     rows = conn.execute(

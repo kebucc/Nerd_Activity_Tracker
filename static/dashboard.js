@@ -165,15 +165,8 @@ async function loadMonthChart(startDate, endDate) {
     if (!container) return;
     container.innerHTML = "";
 
-    const resp = await fetch(`/api/sessions/${startDate}/${endDate}`);
-    const sessions = await resp.json();
-
-    // Group total duration by date
-    const byDate = {};
-    sessions.forEach(s => {
-        const d = s.start_time.split("T")[0];
-        byDate[d] = (byDate[d] || 0) + s.duration;
-    });
+    const resp = await fetch(`/api/daily-totals/${startDate}/${endDate}`);
+    const byDate = await resp.json();
 
     let maxDuration = 0;
     Object.values(byDate).forEach(v => { if (v > maxDuration) maxDuration = v; });
